@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
+    const navigate = useNavigate();
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#173520] via-[#173520] to-[#000000] flex items-center justify-center">
             <div className="flex flex-col items-center justify-center gap-4">
@@ -21,7 +23,7 @@ function Register() {
                 </div>
                 <div className="bg-white backdrop-blur-sm shadow-lg rounded-lg p-8 w-[500px]">
                     <div className='flex'>
-                        <button className="w-full flex items-center justify-center rounded text-[#444]">Entrar</button>
+                        <button className="w-full flex items-center justify-center rounded text-[#444]" onClick={() => navigate("/login")}>Entrar</button>
                         <button className="w-full flex items-center justify-center border border-gray-200 rounded-lg bg-gray-100 disable">Cadastrar</button>
                     </div>
                     <div className=" mt-6 mb-4">
