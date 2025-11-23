@@ -23,8 +23,8 @@ function Dashboard() {
             {
                 // corpo
             }
-            <div className="w-full bg-pink-500 items-center flex flex-col justify-center">
-                <div className="flex bg-green-500 flex-wrap gap-4 w-[90%] justify-center p-4 my-6">
+            <div className="w-full items-center flex flex-col justify-center">
+                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4 my-6">
                     {
                         //card
                     }
@@ -104,9 +104,120 @@ function Dashboard() {
                     </div>
                     
                 </div>
-                <div className="flex bg-blue-500 flex-wrap gap-4 w-[90%] justify-center p-4">
-                    <div className="bg-white rounded-lg w-[80%] h-40 p-4 flex flex-col">
-                        
+                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4">
+                    <div className="bg-white rounded-lg w-[90%] h-auto p-4 flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 8.74845C20 8.22374 19.5733 7.79722 19.0486 7.79722H17.5358C17.3775 7.25283 17.1602 6.72749 16.8866 6.22909L17.9557 5.15957C18.1324 4.98267 18.2344 4.73754 18.2344 4.48663C18.2344 4.23209 18.1356 3.99337 17.9557 3.81369L16.1861 2.04385C15.8411 1.6984 15.1865 1.69775 14.8406 2.04385L13.7711 3.11337C13.2734 2.83957 12.7474 2.62225 12.2028 2.46374V0.951444C12.2028 0.426738 11.776 0 11.2518 0H8.74845C8.22374 0 7.79722 0.426738 7.79722 0.951444V2.46396C7.25262 2.62246 6.72663 2.83979 6.22866 3.11358L5.15914 2.04406C4.79979 1.68492 4.17326 1.68492 3.81412 2.04406L2.04385 3.8139C1.67294 4.18481 1.67294 4.78824 2.04385 5.15914L3.11316 6.22866C2.83957 6.72706 2.62225 7.25283 2.46374 7.79722H0.951444C0.426738 7.79722 0 8.22396 0 8.74845V11.2513C0 11.776 0.426738 12.2026 0.951444 12.2026H2.46396C2.62225 12.747 2.83979 13.2727 3.11337 13.7709L2.04428 14.8402C1.86738 15.0171 1.76556 15.2625 1.76556 15.5132C1.76556 15.7675 1.86439 16.0066 2.04406 16.1861L3.8139 17.9557C4.15914 18.3012 4.81369 18.302 5.15936 17.9557L6.22888 16.8862C6.72684 17.1598 7.25262 17.3775 7.79743 17.5358V19.0483C7.79743 19.573 8.22417 19.9998 8.74866 19.9998H11.2518C11.7765 19.9998 12.2028 19.573 12.2028 19.0483V17.5358C12.7474 17.3775 13.2734 17.1602 13.7711 16.8862L14.8406 17.9557C15.2002 18.3151 15.8263 18.3151 16.1857 17.9557L17.9557 16.1861C18.3266 15.8152 18.3266 15.2118 17.9557 14.8409L16.8866 13.7711C17.1602 13.2729 17.3775 12.7472 17.5358 12.2028H19.0483C19.573 12.2028 19.9998 11.776 19.9998 11.2518L20 8.74845ZM13.4646 10C13.4646 11.9106 11.9104 13.4646 10 13.4646C8.08963 13.4646 6.5354 11.9104 6.5354 10C6.5354 8.08963 8.08963 6.5354 10 6.5354C11.9106 6.5354 13.4646 8.08963 13.4646 10Z" fill="black"/>
+                            </svg>
+                            <h1 className="text-xl">Ações Rápidas</h1>
+                        </div>
+                        <div className="flex-wrap gap-2 flex h-full mt-2">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                                <h2 className="text-black">Contas bancarias</h2>
+                            </div>
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                                <h2 className="text-black">Registrar salário</h2>
+                            </div>
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                                <h2 className="text-black">Registrar Renda extra</h2>
+                            </div>
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                                <h2 className="text-black">Registrar despesa</h2>
+                            </div>
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                                <h2 className="text-black">Gerar relatório</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4">
+                    <div className="bg-white rounded-lg w-[90%] h-auto p-4 my-4 flex flex-col mb-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.0058 1.05C12.0058 0.784784 11.9004 0.530429 11.7129 0.342893C11.5254 0.155357 11.271 0.0500002 11.0058 0.0500002L3.0058 0C2.74058 0 2.48623 0.105357 2.29869 0.292893C2.11116 0.48043 2.0058 0.734784 2.0058 1C2.0058 1.26522 2.11116 1.51957 2.29869 1.70711C2.48623 1.89464 2.74058 2 3.0058 2H8.5658L0.295798 10.29C0.20207 10.383 0.127676 10.4936 0.0769072 10.6154C0.0261385 10.7373 0 10.868 0 11C0 11.132 0.0261385 11.2627 0.0769072 11.3846C0.127676 11.5064 0.20207 11.617 0.295798 11.71C0.388761 11.8037 0.499362 11.8781 0.621222 11.9289C0.743081 11.9797 0.873786 12.0058 1.0058 12.0058C1.13781 12.0058 1.26852 11.9797 1.39038 11.9289C1.51223 11.8781 1.62284 11.8037 1.7158 11.71L10.0058 3.42V9C10.0058 9.26522 10.1112 9.51957 10.2987 9.70711C10.4862 9.89464 10.7406 10 11.0058 10C11.271 10 11.5254 9.89464 11.7129 9.70711C11.9004 9.51957 12.0058 9.26522 12.0058 9V1.05Z" fill="black"/>
+                            </svg>
+                            <h1 className="text-xl">Transações recentes</h1>
+                        </div>
+                        {/*item*/}
+                        <div className="w-full h-[60px] flex items-center">
+                            <div className="bg-green-200 h-[50px] w-[50px] rounded-full items-center flex justify-center">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.14844 0.231092C9.07581 0.157867 8.9894 0.0997467 8.8942 0.0600837C8.799 0.0204207 8.69688 0 8.59375 0C8.49062 0 8.3885 0.0204207 8.2933 0.0600837C8.1981 0.0997467 8.11169 0.157867 8.03906 0.231092L1.5625 6.71547V2.34828C1.5625 2.14108 1.48019 1.94237 1.33368 1.79585C1.18716 1.64934 0.98845 1.56703 0.78125 1.56703C0.57405 1.56703 0.375336 1.64934 0.228823 1.79585C0.0823102 1.94237 0 2.14108 0 2.34828V8.59828C0 8.80548 0.0823102 9.0042 0.228823 9.15071C0.375336 9.29722 0.57405 9.37953 0.78125 9.37953H7.03125C7.23845 9.37953 7.43716 9.29722 7.58368 9.15071C7.73019 9.0042 7.8125 8.80548 7.8125 8.59828C7.8125 8.39108 7.73019 8.19236 7.58368 8.04585C7.43716 7.89934 7.23845 7.81703 7.03125 7.81703H2.66406L9.14844 1.34047C9.22166 1.26784 9.27978 1.18143 9.31945 1.08623C9.35911 0.991028 9.37953 0.888914 9.37953 0.78578C9.37953 0.682646 9.35911 0.580532 9.31945 0.485329C9.27978 0.390127 9.22166 0.30372 9.14844 0.231092Z" fill="#289F28"/>
+                                </svg>
+                            </div>
+                            <div className="pl-4">
+                                <p>Salário - Empresa XYZ</p>
+                                <div className="flex gap-2">
+                                    <div className="bg-[#aaa] rounded-xl px-2">
+                                        <p>Salário</p>
+                                    </div>
+                                    <p className="text-[#aaa]">2024-01-15</p>
+                                </div>
+                            </div>
+                            <div className="flex ml-auto items-center">
+                                <h2 className="text-green-600 font-semibold ml-auto mr-4">+ R$ 5.000,00</h2>
+                                <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
+                                    <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
+                                    <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
+                                </svg>
+
+                            </div>
+                        </div>
+                        {/*item*/}
+                        <div className="w-full h-[60px] flex items-center">
+                            <div className="bg-red-200 h-[50px] w-[50px] rounded-full items-center flex justify-center">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.37953 0.820313C9.37953 0.613112 9.29722 0.414398 9.15071 0.267885C9.0042 0.121372 8.80548 0.0390626 8.59828 0.0390626L2.34828 0C2.14108 0 1.94237 0.0823102 1.79585 0.228823C1.64934 0.375336 1.56703 0.57405 1.56703 0.78125C1.56703 0.98845 1.64934 1.18716 1.79585 1.33368C1.94237 1.48019 2.14108 1.5625 2.34828 1.5625H6.69203L0.231092 8.03906C0.157867 8.11169 0.0997467 8.1981 0.0600837 8.2933C0.0204207 8.3885 0 8.49062 0 8.59375C0 8.69688 0.0204207 8.799 0.0600837 8.8942C0.0997467 8.9894 0.157867 9.07581 0.231092 9.14844C0.30372 9.22166 0.390127 9.27978 0.485329 9.31945C0.580532 9.35911 0.682646 9.37953 0.78578 9.37953C0.888914 9.37953 0.991028 9.35911 1.08623 9.31945C1.18143 9.27978 1.26784 9.22166 1.34047 9.14844L7.81703 2.67188V7.03125C7.81703 7.23845 7.89934 7.43716 8.04585 7.58368C8.19236 7.73019 8.39108 7.8125 8.59828 7.8125C8.80548 7.8125 9.0042 7.73019 9.15071 7.58368C9.29722 7.43716 9.37953 7.23845 9.37953 7.03125V0.820313Z" fill="#DF2222"/>
+                                </svg>
+                            </div>
+                            <div className="pl-4">
+                                <p>Salário - Empresa XYZ</p>
+                                <div className="flex gap-2">
+                                    <div className="bg-[#aaa] rounded-xl px-2">
+                                        <p>Salário</p>
+                                    </div>
+                                    <p className="text-[#aaa]">2024-01-15</p>
+                                </div>
+                            </div>
+                            <div className="flex ml-auto items-center">
+                                <h2 className="text-red-600 font-semibold ml-auto mr-4">- R$ 1.000,00</h2>
+                                <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
+                                    <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
+                                    <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
+                                </svg>
+
+                            </div>
+                        </div>
+                        {/*item*/}
+                        <div className="w-full h-[60px] flex items-center">
+                            <div className="bg-blue-200 h-[50px] w-[50px] rounded-full items-center flex justify-center">
+                                <svg width="16" height="21" viewBox="0 0 16 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.45898 8.56854H3.87207V17.5187L1.26953 13.7101L0 14.6115L3.38965 19.6008C3.52799 19.8162 3.71491 19.9961 3.93538 20.1262C4.15585 20.2563 4.40375 20.3328 4.65918 20.3498C4.91461 20.3328 5.1625 20.2563 5.38298 20.1262C5.60345 19.9961 5.79036 19.8162 5.92871 19.6008L9.31836 14.6115L8.04883 13.7101L5.43359 17.5187L5.45898 8.56854ZM9.68652 0.74823L6.29688 5.73749L7.56641 6.63886L10.1816 2.83026V11.7424H11.7686V2.85565L14.3076 6.66425L15.5771 5.76288L12.3525 0.74823C12.2131 0.519712 12.0173 0.330874 11.7839 0.199846C11.5504 0.0688177 11.2872 0 11.0195 0C10.7518 0 10.4886 0.0688177 10.2552 0.199846C10.0218 0.330874 9.82595 0.519712 9.68652 0.74823Z" fill="#2222DF"/>
+                                </svg>
+
+                            </div>
+                            <div className="pl-4">
+                                <p>Salário - Empresa XYZ</p>
+                                <div className="flex gap-2">
+                                    <div className="bg-[#aaa] rounded-xl px-2">
+                                        <p>Salário</p>
+                                    </div>
+                                    <p className="text-[#aaa]">2024-01-15</p>
+                                </div>
+                            </div>
+                            <div className="flex ml-auto items-center">
+                                <h2 className="text-blue-600 font-semibold ml-auto mr-4">R$ 500,00</h2>
+                                <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
+                                    <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
+                                    <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
+                                </svg>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
