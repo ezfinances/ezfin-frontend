@@ -24,12 +24,71 @@ function Accounts() {
                 // corpo
             }
             <div className="w-full pt-10 items-center flex flex-col justify-center">
-                <div className="w-[90%]">
-                    <h1 className="text-4xl font-semibold">Minhas Contas</h1>
-                    <p className="text-[#aaa]">Gerencie todas as suas contas financeiras</p>
+                <div className="w-[90%] flex justify-between items-center">
+                    <div className="">
+                        <h1 className="text-4xl font-semibold">Minhas Contas</h1>
+                        <p className="text-[#aaa]">Gerencie todas as suas contas financeiras</p>
+                    </div>
+                    <div className="bg-[#171717] flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2 ">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" width="4" height="16" fill="white"/>
+                            <rect x="16" y="6" width="4" height="16" transform="rotate(90 16 6)" fill="white"/>
+                        </svg>
+                        <p className="text-white font-semibold">Nova Conta</p>
+                    </div>
                 </div>
                 
+                
                 <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4 my-6">
+                    {
+                        //card
+                    }
+                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
+                        <div className="flex items-center w-full justify-between">
+                            <div className="flex gap-2">
+                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
+
+                                </div>
+                                <div>
+                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
+                                    <p className="text-[#aaa]">Banco do Brasil</p>
+                                </div>
+                            </div>
+                            
+                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
+                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
+                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
+                            </svg>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                            <div className="bg-[#171717] rounded-xl px-2">
+                                <p className="text-white">Conta Corrente</p>
+                            </div>
+                            <div className="bg-[#171717] rounded-xl px-2">
+                                <p className="text-white">Ativa</p>
+                            </div>
+                        </div>
+                        <div className="mt-2 flex justify-between items-center">
+                            <div>
+                                <p>Saldo atual</p>
+                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
+                            </div>
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_31_597)">
+                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_31_597">
+                                <rect width="15" height="15" fill="white"/>
+                                </clipPath>
+                                </defs>
+                            </svg>
+
+                        </div>    
+                    </div>
                     {
                         //card
                     }
