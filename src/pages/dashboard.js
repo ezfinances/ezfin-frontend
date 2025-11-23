@@ -23,8 +23,8 @@ function Dashboard() {
             {
                 // corpo
             }
-            <div className="w-full items-center flex flex-col justify-center">
-                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4 my-6">
+            <div className="w-full items-center flex justify-center">
+                <div className="grid justify-items-center md:justify-items-start grid-cols-[400px] md:grid-cols-[300px_400px] lg:grid-cols-[repeat(3,300px)] xl:grid-cols-[repeat(4,300px)] gap-8 w-auto p-4 my-6">
                     {
                         //card
                     }
@@ -102,37 +102,32 @@ function Dashboard() {
                             <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
                         </div>
                     </div>
-                    
-                </div>
-                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4">
-                    <div className="bg-white rounded-lg w-[90%] h-auto p-4 flex flex-col">
+                    <div className="bg-white shadow-lg rounded-lg h-[400px] md:h-[400px] md:col-span-1 lg:h-[150px] lg:col-span-2 xl:col-span-1 xl:h-[400px] p-4 flex flex-col">
                         <div className="flex items-center gap-2">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M20 8.74845C20 8.22374 19.5733 7.79722 19.0486 7.79722H17.5358C17.3775 7.25283 17.1602 6.72749 16.8866 6.22909L17.9557 5.15957C18.1324 4.98267 18.2344 4.73754 18.2344 4.48663C18.2344 4.23209 18.1356 3.99337 17.9557 3.81369L16.1861 2.04385C15.8411 1.6984 15.1865 1.69775 14.8406 2.04385L13.7711 3.11337C13.2734 2.83957 12.7474 2.62225 12.2028 2.46374V0.951444C12.2028 0.426738 11.776 0 11.2518 0H8.74845C8.22374 0 7.79722 0.426738 7.79722 0.951444V2.46396C7.25262 2.62246 6.72663 2.83979 6.22866 3.11358L5.15914 2.04406C4.79979 1.68492 4.17326 1.68492 3.81412 2.04406L2.04385 3.8139C1.67294 4.18481 1.67294 4.78824 2.04385 5.15914L3.11316 6.22866C2.83957 6.72706 2.62225 7.25283 2.46374 7.79722H0.951444C0.426738 7.79722 0 8.22396 0 8.74845V11.2513C0 11.776 0.426738 12.2026 0.951444 12.2026H2.46396C2.62225 12.747 2.83979 13.2727 3.11337 13.7709L2.04428 14.8402C1.86738 15.0171 1.76556 15.2625 1.76556 15.5132C1.76556 15.7675 1.86439 16.0066 2.04406 16.1861L3.8139 17.9557C4.15914 18.3012 4.81369 18.302 5.15936 17.9557L6.22888 16.8862C6.72684 17.1598 7.25262 17.3775 7.79743 17.5358V19.0483C7.79743 19.573 8.22417 19.9998 8.74866 19.9998H11.2518C11.7765 19.9998 12.2028 19.573 12.2028 19.0483V17.5358C12.7474 17.3775 13.2734 17.1602 13.7711 16.8862L14.8406 17.9557C15.2002 18.3151 15.8263 18.3151 16.1857 17.9557L17.9557 16.1861C18.3266 15.8152 18.3266 15.2118 17.9557 14.8409L16.8866 13.7711C17.1602 13.2729 17.3775 12.7472 17.5358 12.2028H19.0483C19.573 12.2028 19.9998 11.776 19.9998 11.2518L20 8.74845ZM13.4646 10C13.4646 11.9106 11.9104 13.4646 10 13.4646C8.08963 13.4646 6.5354 11.9104 6.5354 10C6.5354 8.08963 8.08963 6.5354 10 6.5354C11.9106 6.5354 13.4646 8.08963 13.4646 10Z" fill="black"/>
                             </svg>
                             <h1 className="text-xl">Ações Rápidas</h1>
                         </div>
-                        <div className="flex-wrap gap-2 flex h-full mt-2">
-                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                        <div className="flex-wrap lg:flex-nowrap xl:flex-wrap gap-2 flex h-full mt-2">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                                 <h2 className="text-black">Contas bancarias</h2>
                             </div>
-                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                                 <h2 className="text-black">Registrar salário</h2>
                             </div>
-                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                                 <h2 className="text-black">Registrar Renda extra</h2>
                             </div>
-                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                                 <h2 className="text-black">Registrar despesa</h2>
                             </div>
-                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-[200px] justify-center flex items-center">
+                            <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                                 <h2 className="text-black">Gerar relatório</h2>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4">
-                    <div className="bg-white rounded-lg w-[90%] h-auto p-4 my-4 flex flex-col mb-8">
+                    <div className="bg-white shadow-lg rounded-lg w-full sm:w-[400px] lg:w-full sm:col-span-1 md:col-span-1 lg:col-span-3 h-[500px] p-4 flex flex-col">
                         <div className="flex items-center gap-2 mb-4">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12.0058 1.05C12.0058 0.784784 11.9004 0.530429 11.7129 0.342893C11.5254 0.155357 11.271 0.0500002 11.0058 0.0500002L3.0058 0C2.74058 0 2.48623 0.105357 2.29869 0.292893C2.11116 0.48043 2.0058 0.734784 2.0058 1C2.0058 1.26522 2.11116 1.51957 2.29869 1.70711C2.48623 1.89464 2.74058 2 3.0058 2H8.5658L0.295798 10.29C0.20207 10.383 0.127676 10.4936 0.0769072 10.6154C0.0261385 10.7373 0 10.868 0 11C0 11.132 0.0261385 11.2627 0.0769072 11.3846C0.127676 11.5064 0.20207 11.617 0.295798 11.71C0.388761 11.8037 0.499362 11.8781 0.621222 11.9289C0.743081 11.9797 0.873786 12.0058 1.0058 12.0058C1.13781 12.0058 1.26852 11.9797 1.39038 11.9289C1.51223 11.8781 1.62284 11.8037 1.7158 11.71L10.0058 3.42V9C10.0058 9.26522 10.1112 9.51957 10.2987 9.70711C10.4862 9.89464 10.7406 10 11.0058 10C11.271 10 11.5254 9.89464 11.7129 9.70711C11.9004 9.51957 12.0058 9.26522 12.0058 9V1.05Z" fill="black"/>
@@ -219,7 +214,10 @@ function Dashboard() {
                             </div>
                         </div>
                     </div>
+                    
                 </div>
+                
+                
             </div>
                 
         </div>
