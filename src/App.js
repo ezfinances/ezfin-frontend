@@ -4,6 +4,7 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import Dashboard from "./pages/dashboard";
 import Accounts from "./pages/accounts";
+import NewIncome from "./pages/newincome";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/accounts" element={<Accounts />} />
+      <Route path="/newincome" element={<NewIncome />} />
       {/* Rota raiz redireciona para /login, ajuste conforme necessário */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       {/* Adicione outras rotas aqui */}
