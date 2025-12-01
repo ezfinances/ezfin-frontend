@@ -16,6 +16,7 @@ function Dashboard() {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExtraIncomeModal, setShowExtraIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [extraIncomeData, setExtraIncomeData] = useState({
@@ -32,6 +33,11 @@ function Dashboard() {
     bank_account_id: '',
     description: '',
     category: '',
+    amount: '',
+  });
+  const [transferData, setTransferData] = useState({
+    from_account_id: '',
+    to_account_id: '',
     amount: '',
   });
   const [refreshing, setRefreshing] = useState(false);
@@ -102,6 +108,74 @@ function Dashboard() {
     navigate('/login');
   };
 
+  const handleSaveTransfer = async () => {
+    try {
+      if (!transferData.from_account_id || !transferData.to_account_id || !transferData.amount) {
+        alert('Por favor, preencha todos os campos');
+        return;
+      }
+
+      if (transferData.from_account_id === transferData.to_account_id) {
+        alert('Selecione contas diferentes para transferência');
+        return;
+      }
+
+      if (parseFloat(transferData.amount) <= 0) {
+        alert('O valor deve ser maior que zero');
+        return;
+      }
+
+      const fromAccountId = parseInt(transferData.from_account_id);
+      const toAccountId = parseInt(transferData.to_account_id);
+      const amount = parseFloat(transferData.amount);
+
+      // Obter as contas atuais
+      const fromAccount = bankAccounts.find(a => a.id === fromAccountId);
+      const toAccount = bankAccounts.find(a => a.id === toAccountId);
+
+      // Verificar se a conta de origem tem saldo suficiente
+      if (fromAccount.balance < amount) {
+        alert('Saldo insuficiente na conta de origem');
+        return;
+      }
+
+      // Criar transação de débito na conta de origem
+      await api.post('/transactions/', {
+        bank_account_id: fromAccountId,
+        description: `Transferência para ${toAccount?.account_name}`,
+        amount: amount,
+        transaction_type: 'transfer',
+        timestamp: new Date().toISOString(),
+      });
+
+      // Criar transação de crédito na conta de destino
+      await api.post('/transactions/', {
+        bank_account_id: toAccountId,
+        description: `Transferência recebida de ${fromAccount?.account_name}`,
+        amount: amount,
+        transaction_type: 'transfer',
+        timestamp: new Date().toISOString(),
+      });
+
+      // Atualizar saldos das contas
+      await api.put(`/bank-accounts/${fromAccountId}/balance?balance=${fromAccount.balance - amount}`);
+      await api.put(`/bank-accounts/${toAccountId}/balance?balance=${toAccount.balance + amount}`);
+
+      setTransferData({
+        from_account_id: '',
+        to_account_id: '',
+        amount: '',
+      });
+      setShowTransferModal(false);
+      fetchBankAccounts();
+      fetchRecentTransactions();
+      alert('Transferência realizada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao realizar transferência:', error);
+      alert('Erro ao realizar transferência. Tente novamente.');
+    }
+  };
+
   const handleSaveSalary = async () => {
     try {
       if (!salaryData.bank_account_id || !salaryData.description || !salaryData.amount) {
@@ -114,19 +188,26 @@ function Dashboard() {
         return;
       }
 
+      const accountId = parseInt(salaryData.bank_account_id);
+      const amount = parseFloat(salaryData.amount);
+      const account = bankAccounts.find(a => a.id === accountId);
+
       const response = await api.post('/transactions/', {
-        bank_account_id: parseInt(salaryData.bank_account_id),
+        bank_account_id: accountId,
         description: salaryData.description,
-        amount: parseFloat(salaryData.amount),
+        amount: amount,
         transaction_type: 'income',
         timestamp: new Date().toISOString(),
       });
+
+      // Atualizar saldo da conta
+      await api.put(`/bank-accounts/${accountId}/balance?balance=${account.balance + amount}`);
 
       const newTransaction = {
         id: response.id,
         description: salaryData.description,
         category: 'Salário',
-        amount: parseFloat(salaryData.amount),
+        amount: amount,
         transaction_type: 'income',
         date: new Date().toISOString().split('T')[0],
       };
@@ -160,21 +241,28 @@ function Dashboard() {
         return;
       }
 
+      const accountId = parseInt(extraIncomeData.bank_account_id);
+      const amount = parseFloat(extraIncomeData.amount);
+      const account = bankAccounts.find(a => a.id === accountId);
+
       // Fazer chamada à API para criar transação
       const response = await api.post('/transactions/', {
-        bank_account_id: parseInt(extraIncomeData.bank_account_id),
+        bank_account_id: accountId,
         description: extraIncomeData.description,
-        amount: parseFloat(extraIncomeData.amount),
+        amount: amount,
         transaction_type: 'income',
         timestamp: new Date().toISOString(),
       });
+
+      // Atualizar saldo da conta
+      await api.put(`/bank-accounts/${accountId}/balance?balance=${account.balance + amount}`);
 
       // Adicionar transação aos recentes (preparando para exibição)
       const newTransaction = {
         id: response.id,
         description: extraIncomeData.description,
         category: 'Renda Extra',
-        amount: parseFloat(extraIncomeData.amount),
+        amount: amount,
         transaction_type: 'income',
         date: new Date().toISOString().split('T')[0],
       };
@@ -212,19 +300,26 @@ function Dashboard() {
         return;
       }
 
+      const accountId = parseInt(expenseData.bank_account_id);
+      const amount = parseFloat(expenseData.amount);
+      const account = bankAccounts.find(a => a.id === accountId);
+
       const response = await api.post('/transactions/', {
-        bank_account_id: parseInt(expenseData.bank_account_id),
+        bank_account_id: accountId,
         description: expenseData.description,
-        amount: parseFloat(expenseData.amount),
+        amount: amount,
         transaction_type: 'expense',
         timestamp: new Date().toISOString(),
       });
+
+      // Atualizar saldo da conta (subtrair o valor)
+      await api.put(`/bank-accounts/${accountId}/balance?balance=${account.balance - amount}`);
 
       const newTransaction = {
         id: response.id,
         description: expenseData.description,
         category: expenseData.category,
-        amount: parseFloat(expenseData.amount),
+        amount: amount,
         transaction_type: 'expense',
         date: new Date().toISOString().split('T')[0],
       };
@@ -363,20 +458,20 @@ function Dashboard() {
                         <h1 className="text-xl">Ações Rápidas</h1>
                     </div>
                     <div className="flex-wrap lg:flex-nowrap xl:flex-wrap gap-2 flex h-full mt-2">
-                        <div onClick={() => navigate('/accounts')} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
+                        <div id="btn-contas" onClick={() => navigate('/accounts')} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                             <h2 className="text-black">Contas bancarias</h2>
                         </div>
-                        <div onClick={() => setShowIncomeModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
+                        <div id="btn-salario" onClick={() => setShowIncomeModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                             <h2 className="text-black">Registrar salario</h2>
                         </div>
-                        <div onClick={() => setShowExtraIncomeModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
+                        <div id="btn-renda-extra" onClick={() => setShowExtraIncomeModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                             <h2 className="text-black">Registrar Renda extra</h2>
                         </div>
-                        <div onClick={() => setShowExpenseModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
+                        <div id="btn-despesa" onClick={() => setShowExpenseModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
                             <h2 className="text-black">Registrar despesa</h2>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
-                            <h2 className="text-black">Gerar relatório</h2>
+                        <div id="btn-transferencia" onClick={() => setShowTransferModal(true)} className="bg-gray-100 rounded-lg p-2 mb-2 cursor-pointer hover:bg-gray-300 border h-[50px] w-full justify-center flex items-center">
+                            <h2 className="text-black">Transferir entre contas</h2>
                         </div>
                     </div>
                 </div>
@@ -615,6 +710,58 @@ function Dashboard() {
                             <div className="flex gap-4 justify-end">
                                 <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowExpenseModal(false)}>Cancelar</button>
                                 <button onClick={handleSaveExpense} className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Modal de Transferência entre Contas */}
+            {showTransferModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-2xl w-[400px] max-h-[90vh] overflow-y-auto relative">
+                        {/* Conteúdo do modal */}        
+                        <div className="bg-white backdrop-blur-sm shadow-lg rounded-lg p-8 w-[400px]">
+                            <div className="mb-4">
+                                <h1 className="text-2xl font-semibold text-gray-800 flex justify-center">Transferir entre Contas</h1>
+                            </div>
+                            
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Conta de Origem</label>
+                            <select 
+                              className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                              value={transferData.from_account_id}
+                              onChange={(e) => setTransferData({...transferData, from_account_id: e.target.value})}
+                            >
+                                <option value="">Selecione a Conta de Origem</option>
+                                {Array.isArray(bankAccounts) && bankAccounts.map((account) => (
+                                    <option key={account.id} value={account.id}>{account.account_name} - R$ {account.balance?.toFixed(2)}</option>
+                                ))}
+                            </select>
+                            
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Conta de Destino</label>
+                            <select 
+                              className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                              value={transferData.to_account_id}
+                              onChange={(e) => setTransferData({...transferData, to_account_id: e.target.value})}
+                            >
+                                <option value="">Selecione a Conta de Destino</option>
+                                {Array.isArray(bankAccounts) && bankAccounts.map((account) => (
+                                    <option key={account.id} value={account.id}>{account.account_name} - R$ {account.balance?.toFixed(2)}</option>
+                                ))}
+                            </select>
+                            
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Valor</label>
+                            <input 
+                              className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                              type="number" 
+                              placeholder="Digite o valor a transferir"
+                              value={transferData.amount}
+                              onChange={(e) => setTransferData({...transferData, amount: e.target.value})}
+                            />
+                            
+                            <div className="flex gap-4 justify-end">
+                                <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowTransferModal(false)}>Cancelar</button>
+                                <button onClick={handleSaveTransfer} className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Transferir</button>
                             </div>
                         </div>
                     </div>

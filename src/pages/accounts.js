@@ -206,10 +206,10 @@ const Accounts = () => {
                         <p className="text-[#aaa]">Gerencie todas as suas contas financeiras</p>
                     </div>
                     <div className=" flex items-center gap-2  ">
-                        <div onClick={() => navigate('/dashboard')} className="bg-red-400 flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
+                        <div id="btn-voltar" onClick={() => navigate('/dashboard')} className="bg-red-400 flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
                             <p className="text-white font-semibold">Voltar</p>
                         </div>
-                        <div onClick={() => setShowNewAccountModal(true)} className="bg-[#171717] flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
+                        <div id="btn-nova-conta" onClick={() => setShowNewAccountModal(true)} className="bg-[#171717] flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <rect x="6" width="4" height="16" fill="white"/>
                                 <rect x="16" y="6" width="4" height="16" transform="rotate(90 16 6)" fill="white"/>
