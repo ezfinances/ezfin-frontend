@@ -1,8 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const response = await api.post('/users/login', {
+                username: email,
+                password: password,
+            });
+
+            const userData = {
+                email: email,
+            };
+
+            login(userData, response.access_token);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Erro ao fazer login:', err);
+            let errorMessage = 'Erro ao fazer login';
+            
+            if (err instanceof TypeError) {
+                errorMessage = 'Erro de conexão com o servidor. Verifique se o backend está disponível.';
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#173520] via-[#173520] to-[#000000] flex items-center justify-center">
             <div className="flex flex-col items-center justify-center gap-4">
@@ -31,11 +72,35 @@ function Login() {
                         <h2 className='text-[#aaa] text-lg flex m-2 justify-center'>Digite suas credenciais para acessar o sistema</h2>
                     </div>
                     
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Email</label>
-                    <input className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="email" placeholder="seu@gmail.com" />
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Senha</label>
-                    <input className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="password" placeholder="Digite sua senha" />
-                    <button className="w-full bg-[#171717] text-white py-2 rounded-lg hover:bg-[#000] transition">Entrar</button>
+                    {error && <div className="p-3 mb-4 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
+                    
+                    <form onSubmit={handleLogin}>
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Email</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="email" 
+                            placeholder="seu@gmail.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Senha</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="password" 
+                            placeholder="Digite sua senha"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <button 
+                            type="submit" 
+                            className="w-full bg-[#171717] text-white py-2 rounded-lg hover:bg-[#000] transition disabled:opacity-50"
+                            disabled={loading}
+                        >
+                            {loading ? 'Entrando...' : 'Entrar'}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

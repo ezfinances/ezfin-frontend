@@ -1,8 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 
 function Register() {
     const navigate = useNavigate();
+    const { register } = useAuth();
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        if (password !== confirmPassword) {
+            setError('As senhas não coincidem');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await api.post('/users/register', {
+                username: email,
+                email: email,
+                password: password,
+            });
+
+            // Após registrar, faz login automático
+            const loginResponse = await api.post('/users/login', {
+                username: email,
+                password: password,
+            });
+
+            const userData = {
+                email: email,
+                name: name,
+            };
+
+            register(userData, loginResponse.access_token);
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Erro ao cadastrar:', err);
+            let errorMessage = 'Erro ao cadastrar';
+            
+            if (err instanceof TypeError) {
+                errorMessage = 'Erro de conexão com o servidor. Verifique se o backend está disponível.';
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            }
+            
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#173520] via-[#173520] to-[#000000] flex items-center justify-center">
             <div className="flex flex-col items-center justify-center gap-4">
@@ -27,18 +84,57 @@ function Register() {
                         <button className="w-full flex items-center justify-center border border-gray-200 rounded-lg bg-gray-100 disable">Cadastrar</button>
                     </div>
                     <div className=" mt-6 mb-4">
-                        <h1 className="text-2xl font-semibold text-gray-800 flex justify-center">Entrar na sua conta</h1>
+                        <h1 className="text-2xl font-semibold text-gray-800 flex justify-center">Criar sua conta</h1>
                         <h2 className='text-[#aaa] text-lg flex m-2 justify-center'>Preencha os dados para criar sua conta</h2>
                     </div>
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Nome</label>
-                    <input className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="email" placeholder="Digite seu nome" />
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Email</label>
-                    <input className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="email" placeholder="seu@gmail.com" />
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Senha</label>
-                    <input className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="password" placeholder="Digite sua senha" />
-                    <label className="block text-lg font-semibold text-[#000] mb-1">Senha</label>
-                    <input className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="password" placeholder="Confirmar senha" />
-                    <button className="w-full bg-[#171717] text-white py-2 rounded-lg hover:bg-[#000] transition">Entrar</button>
+                    
+                    {error && <div className="p-3 mb-4 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
+                    
+                    <form onSubmit={handleRegister}>
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Nome</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="text" 
+                            placeholder="Digite seu nome"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Email</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="email" 
+                            placeholder="seu@gmail.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Senha</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="password" 
+                            placeholder="Digite sua senha"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                        <label className="block text-lg font-semibold text-[#000] mb-1">Confirmar Senha</label>
+                        <input 
+                            className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                            type="password" 
+                            placeholder="Confirmar senha"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                        <button 
+                            type="submit"
+                            className="w-full bg-[#171717] text-white py-2 rounded-lg hover:bg-[#000] transition disabled:opacity-50"
+                            disabled={loading}
+                        >
+                            {loading ? 'Criando conta...' : 'Cadastrar'}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

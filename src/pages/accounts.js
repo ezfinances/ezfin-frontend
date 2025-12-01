@@ -1,4 +1,175 @@
-function Accounts() {
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
+
+const AccountCard = ({ account, onDelete }) => {
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleDelete = () => {
+        if (window.confirm(`Tem certeza que deseja excluir a conta ${account.account_name}?`)) {
+            onDelete(account.id);
+            setShowMenu(false);
+        }
+    };
+
+    return (
+        <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between relative">
+            <div className="flex items-center w-full justify-between">
+                <div className="flex gap-2">
+                    <div className="bg-[#171717] rounded-full h-[50px] w-[50px]" />
+                    <div>
+                        <h1 className="font-semibold">{account?.account_name || 'Conta'}</h1>
+                        <p className="text-[#aaa]">{account?.bank_name || 'Banco'}</p>
+                    </div>
+                </div>
+                <div className="relative">
+                    <button
+                        id="options"
+                        onClick={() => setShowMenu(!showMenu)}
+                        className="p-1 hover:bg-gray-100 rounded cursor-pointer"
+                    >
+                        <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
+                            <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
+                            <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
+                        </svg>
+                    </button>
+                    
+                    {showMenu && (
+                        <div className="absolute right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                            <button
+                                onClick={handleDelete}
+                                className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium whitespace-nowrap"
+                            >
+                                Excluir
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+            <div className="flex justify-between mt-2">
+                <div className="bg-[#171717] rounded-xl px-2">
+                    <p className="text-white">{account?.account_type || 'Conta Corrente'}</p>
+                </div>
+                <div className="bg-[#171717] rounded-xl px-2">
+                    <p className="text-white">{account?.status || 'Ativa'}</p>
+                </div>
+            </div>
+            <div className="mt-2 flex justify-between items-center">
+                <div>
+                    <p>Saldo atual</p>
+                    <h1 className="text-2xl font-semibold text-black">R$ {account?.balance?.toFixed(2) || '0.00'}</h1>
+                </div>
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g clipPath="url(#clip0_31_597)">
+                        <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_31_597">
+                            <rect width="15" height="15" fill="white"/>
+                        </clipPath>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+    );
+};
+
+const Accounts = () => {
+    const { logout, user } = useAuth();
+    const navigate = useNavigate();
+    const [accounts, setAccounts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showNewAccountModal, setShowNewAccountModal] = useState(false);
+    const [formData, setFormData] = useState({
+        account_name: '',
+        bank_name: '',
+        account_type: ''
+    });
+
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            try {
+                const response = await api.get('/bank-accounts');
+                setAccounts(response);
+            } catch (error) {
+                console.error('Erro ao buscar contas:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            fetchAccounts();
+        }
+    }, [user]);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
+    const handleDeleteAccount = async (accountId) => {
+        try {
+            await api.delete(`/bank-accounts/${accountId}`);
+            setAccounts(accounts.filter(acc => acc.id !== accountId));
+            alert('Conta excluída com sucesso!');
+        } catch (error) {
+            console.error('Erro ao excluir conta:', error);
+            let errorMessage = 'Erro desconhecido ao excluir conta';
+            
+            if (error instanceof TypeError) {
+                errorMessage = 'Erro de conexão com o servidor. Verifique se o backend está disponível.';
+            } else if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            
+            alert(`Erro ao excluir conta: ${errorMessage}`);
+        }
+    };
+
+    const handleSaveAccount = async () => {
+        if (!formData.account_name || !formData.bank_name || !formData.account_type) {
+            alert('Por favor, preencha todos os campos');
+            return;
+        }
+
+        try {
+            const response = await api.post('/bank-accounts', {
+                account_name: formData.account_name,
+                bank_name: formData.bank_name,
+                account_type: formData.account_type
+            });
+
+            // Adiciona a nova conta à lista
+            setAccounts([...accounts, response]);
+            
+            // Limpa o formulário
+            setFormData({
+                account_name: '',
+                bank_name: '',
+                account_type: ''
+            });
+            
+            // Fecha o modal
+            setShowNewAccountModal(false);
+        } catch (error) {
+            console.error('Erro ao criar conta:', error);
+            alert(`Erro ao criar conta: ${error.message}`);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100">
             <header className="h-[50px] shadow-md flex items-center px-4 bg-white justify-between">
@@ -16,7 +187,9 @@ function Accounts() {
                     <svg width="24" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9.33349 26.6667H14.6668C14.6668 27.3739 14.3859 28.0522 13.8858 28.5523C13.3857 29.0524 12.7074 29.3333 12.0002 29.3333C11.2929 29.3333 10.6146 29.0524 10.1145 28.5523C9.61444 28.0522 9.33349 27.3739 9.33349 26.6667ZM0.101488 23.1773C0.000548114 22.9336 -0.0258399 22.6655 0.0256628 22.4068C0.0771655 22.1481 0.204244 21.9105 0.390821 21.724L2.66682 19.448V12C2.67111 9.758 3.48161 7.59232 4.95034 5.89839C6.41907 4.20445 8.44805 3.09526 10.6668 2.77333V1.33333C10.6668 0.979711 10.8073 0.640573 11.0573 0.390524C11.3074 0.140476 11.6465 0 12.0002 0C12.3538 0 12.6929 0.140476 12.943 0.390524C13.193 0.640573 13.3335 0.979711 13.3335 1.33333V2.77333C15.5523 3.09526 17.5812 4.20445 19.05 5.89839C20.5187 7.59232 21.3292 9.758 21.3335 12V19.448L23.6095 21.724C23.7959 21.9105 23.9228 22.148 23.9743 22.4066C24.0257 22.6652 23.9993 22.9333 23.8984 23.1769C23.7975 23.4205 23.6266 23.6287 23.4074 23.7752C23.1882 23.9217 22.9305 23.9999 22.6668 24H1.33349C1.0698 24.0001 0.812013 23.9219 0.592721 23.7755C0.37343 23.6291 0.20248 23.4209 0.101488 23.1773ZM4.55216 21.3333H19.4482L19.0575 20.9427C18.8074 20.6927 18.6669 20.3536 18.6668 20V12C18.6668 10.2319 17.9644 8.5362 16.7142 7.28595C15.464 6.03571 13.7683 5.33333 12.0002 5.33333C10.232 5.33333 8.53635 6.03571 7.28611 7.28595C6.03587 8.5362 5.33349 10.2319 5.33349 12V20C5.33341 20.3536 5.19289 20.6927 4.94282 20.9427L4.55216 21.3333Z" fill="#171717"/>
                     </svg>
-                    <div className='w-10 h-10 bg-gray-300 rounded-full'></div>
+                    <button onClick={handleLogout} className="hover:opacity-80 transition">
+                        <div className='w-10 h-10 bg-gray-300 rounded-full'></div>
+                    </button>
 
                 </div>
             </header>
@@ -29,364 +202,95 @@ function Accounts() {
                         <h1 className="text-4xl font-semibold">Minhas Contas</h1>
                         <p className="text-[#aaa]">Gerencie todas as suas contas financeiras</p>
                     </div>
-                    <div className="bg-[#171717] flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2 ">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="6" width="4" height="16" fill="white"/>
-                            <rect x="16" y="6" width="4" height="16" transform="rotate(90 16 6)" fill="white"/>
-                        </svg>
-                        <p className="text-white font-semibold">Nova Conta</p>
+                    <div className=" flex items-center gap-2  ">
+                        <div onClick={() => navigate('/dashboard')} className="bg-red-400 flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
+                            <p className="text-white font-semibold">Voltar</p>
+                        </div>
+                        <div onClick={() => setShowNewAccountModal(true)} className="bg-[#171717] flex items-center gap-2 rounded-lg shadow-lg cursor-pointer p-2">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="6" width="4" height="16" fill="white"/>
+                                <rect x="16" y="6" width="4" height="16" transform="rotate(90 16 6)" fill="white"/>
+                            </svg>
+                            <p className="text-white font-semibold">Nova Conta</p>
+                        </div>
+                        
                     </div>
                 </div>
                 
                 
                 <div className="flex flex-wrap gap-4 w-[90%] justify-center p-4 my-6">
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
-                    {
-                        //card
-                    }
-                    <div className="bg-white shadow-lg h-[200px] w-[350px] rounded-lg p-4 flex flex-col justify-between">
-                        <div className="flex items-center w-full justify-between">
-                            <div className="flex gap-2">
-                                <div className="bg-[#171717] rounded-full h-[50px] w-[50px]">
-
-                                </div>
-                                <div>
-                                    <h1 className="font-semibold">Conta Corrente Principal</h1>
-                                    <p className="text-[#aaa]">Banco do Brasil</p>
-                                </div>
-                            </div>
-                            
-                            <svg width="16" height="4" viewBox="0 0 16 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 2C4 3.10457 3.10457 4 2 4C0.895431 4 0 3.10457 0 2C0 0.89543 0.895431 0 2 0C3.10457 0 4 0.89543 4 2Z" fill="black"/>
-                                <path d="M10 2C10 3.10457 9.10457 4 8 4C6.89543 4 6 3.10457 6 2C6 0.89543 6.89543 0 8 0C9.10457 0 10 0.89543 10 2Z" fill="black"/>
-                                <path d="M14 4C15.1046 4 16 3.10457 16 2C16 0.89543 15.1046 0 14 0C12.8954 0 12 0.89543 12 2C12 3.10457 12.8954 4 14 4Z" fill="black"/>
-                            </svg>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Conta Corrente</p>
-                            </div>
-                            <div className="bg-[#171717] rounded-xl px-2">
-                                <p className="text-white">Ativa</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 flex justify-between items-center">
-                            <div>
-                                <p>Saldo atual</p>
-                                <h1 className="text-2xl font-semibold text-black">R$ 5.432,10</h1>
-                            </div>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_31_597)">
-                                <path d="M0.625 7.5C0.625 7.5 3.125 2.5 7.5 2.5C11.875 2.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M0.625 7.5C0.625 7.5 3.125 12.5 7.5 12.5C11.875 12.5 14.375 7.5 14.375 7.5" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M7.5 9.375C8.53553 9.375 9.375 8.53553 9.375 7.5C9.375 6.46447 8.53553 5.625 7.5 5.625C6.46447 5.625 5.625 6.46447 5.625 7.5C5.625 8.53553 6.46447 9.375 7.5 9.375Z" stroke="#737373" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_31_597">
-                                <rect width="15" height="15" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-
-                        </div>    
-                    </div>
+                    {loading ? (
+                        <p className="text-center text-gray-600">Carregando contas...</p>
+                    ) : accounts && accounts.length > 0 ? (
+                        accounts.map((account) => (
+                            <AccountCard key={account.id} account={account} onDelete={handleDeleteAccount} />
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-600">Nenhuma conta encontrada.</p>
+                    )}
                 </div>
+                        
                 
             </div>
+
+            {showNewAccountModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-2xl w-[400px] max-h-[90vh] overflow-y-auto relative"> 
+                        <div className="bg-white backdrop-blur-sm shadow-lg rounded-lg p-8 w-[400px]">
+                            <div className="mb-4">
+                                <h1 className="text-2xl font-semibold text-gray-800 flex justify-center">Nova Conta</h1>
+                            </div>
+                            
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Nome da Conta</label>
+                            <input 
+                                className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                                type="text" 
+                                name="account_name"
+                                value={formData.account_name}
+                                onChange={handleInputChange}
+                                placeholder="Ex: Conta Corrente Principal" 
+                            />
+                            
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Banco</label>
+                            <select 
+                                className="w-full px-3 py-2 mb-4 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                                name="bank_name"
+                                value={formData.bank_name}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Selecione o Banco</option>
+                                <option value="Nubank">Nubank</option>
+                                <option value="Banco Inter">Banco Inter</option>
+                                <option value="Banco do Brasil">Banco do Brasil</option>
+                                <option value="Caixa Econômica">Caixa Econômica</option>
+                                <option value="Bradesco">Bradesco</option>
+                                <option value="Itaú">Itaú</option>
+                            </select>
+
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Tipo de Conta</label>
+                            <select 
+                                className="w-full px-3 py-2 mb-4 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                                name="account_type"
+                                value={formData.account_type}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Selecione o Tipo</option>
+                                <option value="Conta Corrente">Conta Corrente</option>
+                                <option value="Conta Poupança">Conta Poupança</option>
+                                <option value="Conta Salário">Conta Salário</option>
+                            </select>
+                            
+                            <div className="flex gap-4 justify-end mt-2">
+                                <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowNewAccountModal(false)}>Cancelar</button>
+                                <button onClick={handleSaveAccount} className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
                 
         </div>
     );
-} export default Accounts;
+};
+
+export default Accounts;
