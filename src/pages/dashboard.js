@@ -294,7 +294,7 @@ function Dashboard() {
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
                         <h1 className="text-3xl">R$ {dashboardData.total_balance.toFixed(2).replace('.', ',')}</h1>
-                        <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
+                        <h2 className="text-[#aaa]">Quantidade atual de dinheiro</h2>
                     </div>
                     
                 </div>
@@ -314,7 +314,7 @@ function Dashboard() {
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
                         <h1 className="text-3xl font-semibold text-green-500">R$ {dashboardData.total_income.toFixed(2).replace('.', ',')}</h1>
-                        <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
+                        <h2 className="text-[#aaa]">Total de dinheiro ganho</h2>
                     </div>
                 </div>
                 {
@@ -333,7 +333,7 @@ function Dashboard() {
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
                         <h1 className="text-3xl font-semibold text-red-500">R$ {dashboardData.total_expenses.toFixed(2).replace('.', ',')}</h1>
-                        <h2 className="text-[#aaa]">+120% em relação ao mês passado</h2>
+                        <h2 className="text-[#aaa]">Total de dinheiro gasto</h2>
                     </div>
                 </div>
                 {
@@ -352,7 +352,7 @@ function Dashboard() {
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
                         <h1 className="text-3xl font-semibold text-black">{dashboardData.total_accounts}</h1>
-                        <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
+                        <h2 className="text-[#aaa]">Quantidade de contas cadastradas</h2>
                     </div>
                 </div>
                 <div className="bg-white shadow-lg rounded-lg h-[400px] md:h-[400px] md:col-span-1 lg:h-[150px] lg:col-span-2 xl:col-span-1 xl:h-[400px] p-4 flex flex-col">
