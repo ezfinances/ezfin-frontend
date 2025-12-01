@@ -3,7 +3,18 @@
  * Configuração base e métodos HTTP.
  */
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// Detectar automaticamente qual URL usar baseado no ambiente
+const determineApiUrl = () => {
+  // Se estiver em produção (Fly.io), usar a URL de produção
+  if (window.location.hostname === 'ezfin-frontend.fly.dev') {
+    return 'https://ezfin-backend.fly.dev';
+  }
+  
+  // Caso contrário, usar localhost ou variável de ambiente
+  return process.env.REACT_APP_API_URL || 'http://localhost:8000';
+};
+
+const API_BASE_URL = determineApiUrl();
 
 class ApiService {
   constructor(baseURL = API_BASE_URL) {
