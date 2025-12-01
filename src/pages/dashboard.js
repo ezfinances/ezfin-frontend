@@ -34,6 +34,19 @@ function Dashboard() {
     category: '',
     amount: '',
   });
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await api.get('/dashboard/');
+      setDashboardData(response.data || response);
+    } catch (error) {
+      console.error('Erro ao buscar dados do dashboard:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   const fetchBankAccounts = async () => {
     try {
@@ -60,22 +73,27 @@ function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get('/dashboard/');
-        setDashboardData(response.data || response);
-      } catch (error) {
-        console.error('Erro ao buscar dados do dashboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchDashboardData();
+    await fetchBankAccounts();
+    await fetchRecentTransactions();
+  };
 
+  useEffect(() => {
     if (user) {
       fetchDashboardData();
       fetchBankAccounts();
       fetchRecentTransactions();
+
+      // Atualizar dados a cada 3 segundos
+      const interval = setInterval(() => {
+        fetchDashboardData();
+        fetchBankAccounts();
+        fetchRecentTransactions();
+      }, 3000);
+
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -245,6 +263,7 @@ function Dashboard() {
                 <svg width="24" height="25" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.33349 26.6667H14.6668C14.6668 27.3739 14.3859 28.0522 13.8858 28.5523C13.3857 29.0524 12.7074 29.3333 12.0002 29.3333C11.2929 29.3333 10.6146 29.0524 10.1145 28.5523C9.61444 28.0522 9.33349 27.3739 9.33349 26.6667ZM0.101488 23.1773C0.000548114 22.9336 -0.0258399 22.6655 0.0256628 22.4068C0.0771655 22.1481 0.204244 21.9105 0.390821 21.724L2.66682 19.448V12C2.67111 9.758 3.48161 7.59232 4.95034 5.89839C6.41907 4.20445 8.44805 3.09526 10.6668 2.77333V1.33333C10.6668 0.979711 10.8073 0.640573 11.0573 0.390524C11.3074 0.140476 11.6465 0 12.0002 0C12.3538 0 12.6929 0.140476 12.943 0.390524C13.193 0.640573 13.3335 0.979711 13.3335 1.33333V2.77333C15.5523 3.09526 17.5812 4.20445 19.05 5.89839C20.5187 7.59232 21.3292 9.758 21.3335 12V19.448L23.6095 21.724C23.7959 21.9105 23.9228 22.148 23.9743 22.4066C24.0257 22.6652 23.9993 22.9333 23.8984 23.1769C23.7975 23.4205 23.6266 23.6287 23.4074 23.7752C23.1882 23.9217 22.9305 23.9999 22.6668 24H1.33349C1.0698 24.0001 0.812013 23.9219 0.592721 23.7755C0.37343 23.6291 0.20248 23.4209 0.101488 23.1773ZM4.55216 21.3333H19.4482L19.0575 20.9427C18.8074 20.6927 18.6669 20.3536 18.6668 20V12C18.6668 10.2319 17.9644 8.5362 16.7142 7.28595C15.464 6.03571 13.7683 5.33333 12.0002 5.33333C10.232 5.33333 8.53635 6.03571 7.28611 7.28595C6.03587 8.5362 5.33349 10.2319 5.33349 12V20C5.33341 20.3536 5.19289 20.6927 4.94282 20.9427L4.55216 21.3333Z" fill="#171717"/>
                 </svg>
+                
                 <button
                   onClick={handleLogout}
                   className='w-10 h-10 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white font-bold'
@@ -294,7 +313,7 @@ function Dashboard() {
                         </svg>
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
-                        <h1 className="text-3xl font-semibold text-green-500">R$ 1.200,56</h1>
+                        <h1 className="text-3xl font-semibold text-green-500">R$ {dashboardData.total_income.toFixed(2).replace('.', ',')}</h1>
                         <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
                     </div>
                 </div>
@@ -313,7 +332,7 @@ function Dashboard() {
                         </svg>
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
-                        <h1 className="text-3xl font-semibold text-red-500">R$ 4.200,64</h1>
+                        <h1 className="text-3xl font-semibold text-red-500">R$ {dashboardData.total_expenses.toFixed(2).replace('.', ',')}</h1>
                         <h2 className="text-[#aaa]">+120% em relação ao mês passado</h2>
                     </div>
                 </div>
@@ -332,7 +351,7 @@ function Dashboard() {
                         </svg>
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
-                        <h1 className="text-3xl font-semibold text-black">6</h1>
+                        <h1 className="text-3xl font-semibold text-black">{dashboardData.total_accounts}</h1>
                         <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
                     </div>
                 </div>
@@ -412,6 +431,7 @@ function Dashboard() {
                                 style: 'currency',
                                 currency: 'BRL'
                             });
+                            const formattedDate = new Date(transaction.timestamp).toLocaleDateString('pt-BR');
 
                             return (
                                 <div key={transaction.id} className="w-full h-[60px] flex items-center">
@@ -424,7 +444,7 @@ function Dashboard() {
                                             <div className="bg-[#aaa] rounded-xl px-2">
                                                 <p>{transaction.category}</p>
                                             </div>
-                                            <p className="text-[#aaa]">{transaction.date}</p>
+                                            <p className="text-[#aaa]">{formattedDate}</p>
                                         </div>
                                     </div>
                                     <div className="flex ml-auto items-center">
