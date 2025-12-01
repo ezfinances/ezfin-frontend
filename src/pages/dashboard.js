@@ -7,10 +7,10 @@ function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState({
-    totalBalance: 0,
-    income: 0,
-    expenses: 0,
-    bankAccounts: 0,
+    total_balance: 0,
+    total_income: 0,
+    total_expenses: 0,
+    total_accounts: 0,
   });
   const [loading, setLoading] = useState(true);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
@@ -23,21 +23,48 @@ function Dashboard() {
     description: '',
     amount: '',
   });
+  const [salaryData, setSalaryData] = useState({
+    bank_account_id: '',
+    description: '',
+    amount: '',
+  });
+  const [expenseData, setExpenseData] = useState({
+    bank_account_id: '',
+    description: '',
+    category: '',
+    amount: '',
+  });
 
   const fetchBankAccounts = async () => {
     try {
       const response = await api.get('/bank-accounts');
-      setBankAccounts(response.data);
+      console.log('Response completo:', response);
+      console.log('Response.data:', response.data);
+      const accounts = response.data || response;
+      console.log('Contas bancárias carregadas:', accounts);
+      setBankAccounts(accounts);
     } catch (error) {
       console.error('Erro ao buscar contas bancárias:', error);
+    }
+  };
+
+  const fetchRecentTransactions = async () => {
+    try {
+      const response = await api.get('/transactions/');
+      const transactions = response.data || response;
+      // Pegar as 10 transações mais recentes
+      const sorted = transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
+      setRecentTransactions(sorted);
+    } catch (error) {
+      console.error('Erro ao buscar transações:', error);
     }
   };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get('/dashboard/summary');
-        setDashboardData(response.data);
+        const response = await api.get('/dashboard/');
+        setDashboardData(response.data || response);
       } catch (error) {
         console.error('Erro ao buscar dados do dashboard:', error);
       } finally {
@@ -48,12 +75,58 @@ function Dashboard() {
     if (user) {
       fetchDashboardData();
       fetchBankAccounts();
+      fetchRecentTransactions();
     }
   }, [user]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSaveSalary = async () => {
+    try {
+      if (!salaryData.bank_account_id || !salaryData.description || !salaryData.amount) {
+        alert('Por favor, preencha todos os campos');
+        return;
+      }
+
+      if (parseFloat(salaryData.amount) <= 0) {
+        alert('O valor deve ser maior que zero');
+        return;
+      }
+
+      const response = await api.post('/transactions/', {
+        bank_account_id: parseInt(salaryData.bank_account_id),
+        description: salaryData.description,
+        amount: parseFloat(salaryData.amount),
+        transaction_type: 'income',
+        timestamp: new Date().toISOString(),
+      });
+
+      const newTransaction = {
+        id: response.id,
+        description: salaryData.description,
+        category: 'Salário',
+        amount: parseFloat(salaryData.amount),
+        transaction_type: 'income',
+        date: new Date().toISOString().split('T')[0],
+      };
+
+      setRecentTransactions([newTransaction, ...recentTransactions]);
+      setSalaryData({
+        bank_account_id: '',
+        description: '',
+        amount: '',
+      });
+      setShowIncomeModal(false);
+      fetchBankAccounts();
+      fetchRecentTransactions();
+      alert('Salário registrado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao registrar salário:', error);
+      alert('Erro ao registrar salário. Tente novamente.');
+    }
   };
 
   const handleSaveExtraIncome = async () => {
@@ -100,11 +173,58 @@ function Dashboard() {
 
       // Atualizar dados do dashboard
       fetchBankAccounts();
+      fetchRecentTransactions();
       
       alert('Renda extra registrada com sucesso!');
     } catch (error) {
       console.error('Erro ao registrar renda extra:', error);
       alert('Erro ao registrar renda extra. Tente novamente.');
+    }
+  };
+
+  const handleSaveExpense = async () => {
+    try {
+      if (!expenseData.bank_account_id || !expenseData.description || !expenseData.category || !expenseData.amount) {
+        alert('Por favor, preencha todos os campos');
+        return;
+      }
+
+      if (parseFloat(expenseData.amount) <= 0) {
+        alert('O valor deve ser maior que zero');
+        return;
+      }
+
+      const response = await api.post('/transactions/', {
+        bank_account_id: parseInt(expenseData.bank_account_id),
+        description: expenseData.description,
+        amount: parseFloat(expenseData.amount),
+        transaction_type: 'expense',
+        timestamp: new Date().toISOString(),
+      });
+
+      const newTransaction = {
+        id: response.id,
+        description: expenseData.description,
+        category: expenseData.category,
+        amount: parseFloat(expenseData.amount),
+        transaction_type: 'expense',
+        date: new Date().toISOString().split('T')[0],
+      };
+
+      setRecentTransactions([newTransaction, ...recentTransactions]);
+      setExpenseData({
+        bank_account_id: '',
+        description: '',
+        category: '',
+        amount: '',
+      });
+      setShowExpenseModal(false);
+      fetchBankAccounts();
+      fetchRecentTransactions();
+      alert('Despesa registrada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao registrar despesa:', error);
+      alert('Erro ao registrar despesa. Tente novamente.');
     }
   };
 
@@ -154,7 +274,7 @@ function Dashboard() {
                         </svg>
                     </div>
                     <div className="flex flex-col justify-end h-full pb-8">
-                        <h1 className="text-3xl">R$ 3.600,16</h1>
+                        <h1 className="text-3xl">R$ {dashboardData.total_balance.toFixed(2).replace('.', ',')}</h1>
                         <h2 className="text-[#aaa]">+15% em relação ao mês passado</h2>
                     </div>
                     
@@ -337,20 +457,36 @@ function Dashboard() {
                         </div>
                         
                         <label className="block text-lg font-semibold text-[#000] mb-1">Conta Bancária</label>
-                        <select className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]">
+                        <select 
+                          className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                          value={salaryData.bank_account_id}
+                          onChange={(e) => setSalaryData({...salaryData, bank_account_id: e.target.value})}
+                        >
                             <option value="">Selecione a Conta Bancária</option>
                             {Array.isArray(bankAccounts) && bankAccounts.map((account) => (
                                 <option key={account.id} value={account.id}>{account.account_name}</option>
                             ))}
                         </select>
                         <label className="block text-lg font-semibold text-[#000] mb-1">Nome do salário</label>
-                        <input className="w-full px-4 py-2 mb-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="text" placeholder="Digite o nome da renda" />
+                        <input 
+                          className="w-full px-4 py-2 mb-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                          type="text" 
+                          placeholder="Digite o nome da renda"
+                          value={salaryData.description}
+                          onChange={(e) => setSalaryData({...salaryData, description: e.target.value})}
+                        />
                         <label className="block text-lg font-semibold text-[#000] mb-1">Valor</label>
                         
-                        <input className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="number" placeholder="Digite o valor" />
+                        <input 
+                          className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                          type="number" 
+                          placeholder="Digite o valor"
+                          value={salaryData.amount}
+                          onChange={(e) => setSalaryData({...salaryData, amount: e.target.value})}
+                        />
                         <div className="flex gap-4 justify-end">
                             <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowIncomeModal(false)}>Cancelar</button>
-                            <button className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
+                            <button onClick={handleSaveSalary} className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
                         </div>
                             
                         </div>
@@ -416,16 +552,30 @@ function Dashboard() {
                             </div>
                             
                             <label className="block text-lg font-semibold text-[#000] mb-1">Conta Bancária</label>
-                            <select className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]">
+                            <select 
+                              className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                              value={expenseData.bank_account_id}
+                              onChange={(e) => setExpenseData({...expenseData, bank_account_id: e.target.value})}
+                            >
                                 <option value="">Selecione a Conta Bancária</option>
                                 {Array.isArray(bankAccounts) && bankAccounts.map((account) => (
                                     <option key={account.id} value={account.id}>{account.account_name}</option>
                                 ))}
                             </select>
                             <label className="block text-lg font-semibold text-[#000] mb-1">Descrição da Despesa</label>
-                            <input className="w-full px-4 py-2 mb-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="text" placeholder="Digite a descrição da despesa" />
+                            <input 
+                              className="w-full px-4 py-2 mb-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                              type="text" 
+                              placeholder="Digite a descrição da despesa"
+                              value={expenseData.description}
+                              onChange={(e) => setExpenseData({...expenseData, description: e.target.value})}
+                            />
                             <label className="block text-lg font-semibold text-[#000] mb-1">Categoria</label>
-                            <select className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]">
+                            <select 
+                              className="w-full px-3 py-2 mb-2 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#171717]"
+                              value={expenseData.category}
+                              onChange={(e) => setExpenseData({...expenseData, category: e.target.value})}
+                            >
                                 <option value="">Selecione a Categoria</option>
                                 <option value="alimentacao">Alimentação</option>
                                 <option value="transporte">Transporte</option>
@@ -435,10 +585,16 @@ function Dashboard() {
                                 <option value="outro">Outro</option>
                             </select>
                             <label className="block text-lg font-semibold text-[#000] mb-1">Valor</label>
-                            <input className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" type="number" placeholder="Digite o valor" />
+                            <input 
+                              className="w-full px-4 py-2 mb-6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                              type="number" 
+                              placeholder="Digite o valor"
+                              value={expenseData.amount}
+                              onChange={(e) => setExpenseData({...expenseData, amount: e.target.value})}
+                            />
                             <div className="flex gap-4 justify-end">
                                 <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowExpenseModal(false)}>Cancelar</button>
-                                <button className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
+                                <button onClick={handleSaveExpense} className="w-full bg-[#171717] text-white py-2 font-semibold rounded-lg hover:bg-[#000] transition">Salvar</button>
                             </div>
                         </div>
                     </div>

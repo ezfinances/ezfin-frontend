@@ -87,7 +87,8 @@ const Accounts = () => {
     const [formData, setFormData] = useState({
         account_name: '',
         bank_name: '',
-        account_type: ''
+        account_type: '',
+        balance: ''
     });
 
     useEffect(() => {
@@ -141,7 +142,7 @@ const Accounts = () => {
 
     const handleSaveAccount = async () => {
         if (!formData.account_name || !formData.bank_name || !formData.account_type) {
-            alert('Por favor, preencha todos os campos');
+            alert('Por favor, preencha todos os campos obrigatórios');
             return;
         }
 
@@ -149,7 +150,8 @@ const Accounts = () => {
             const response = await api.post('/bank-accounts', {
                 account_name: formData.account_name,
                 bank_name: formData.bank_name,
-                account_type: formData.account_type
+                account_type: formData.account_type,
+                balance: parseFloat(formData.balance) || 0
             });
 
             // Adiciona a nova conta à lista
@@ -159,7 +161,8 @@ const Accounts = () => {
             setFormData({
                 account_name: '',
                 bank_name: '',
-                account_type: ''
+                account_type: '',
+                balance: ''
             });
             
             // Fecha o modal
@@ -279,6 +282,18 @@ const Accounts = () => {
                                 <option value="Conta Poupança">Conta Poupança</option>
                                 <option value="Conta Salário">Conta Salário</option>
                             </select>
+
+                            <label className="block text-lg font-semibold text-[#000] mb-1">Saldo Inicial (Opcional)</label>
+                            <input 
+                                className="w-full px-4 py-2 mb-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717]" 
+                                type="number" 
+                                name="balance"
+                                value={formData.balance}
+                                onChange={handleInputChange}
+                                placeholder="Ex: 1000.00" 
+                                step="0.01"
+                                min="0"
+                            />
                             
                             <div className="flex gap-4 justify-end mt-2">
                                 <button className="w-full bg-red-100 text-red-400 font-semibold py-2 rounded-lg hover:bg-red-300 hover:text-red-500 transition" onClick={() => setShowNewAccountModal(false)}>Cancelar</button>
