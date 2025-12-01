@@ -5,16 +5,26 @@
 
 // Detectar automaticamente qual URL usar baseado no ambiente
 const determineApiUrl = () => {
+  const hostname = window.location.hostname;
+  
   // Se estiver em produção (Fly.io), usar a URL de produção
-  if (window.location.hostname === 'ezfin-frontend.fly.dev') {
+  if (hostname.includes('fly.dev') || hostname === 'ezfin-frontend.fly.dev') {
     return 'https://ezfin-backend.fly.dev';
   }
   
-  // Caso contrário, usar localhost ou variável de ambiente
+  // Se estiver em localhost, usar localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:8000';
+  }
+  
+  // Fallback para variável de ambiente (buildtime)
   return process.env.REACT_APP_API_URL || 'http://localhost:8000';
 };
 
 const API_BASE_URL = determineApiUrl();
+
+// Log para debug (remover em produção se necessário)
+console.log('[API] Hostname:', window.location.hostname, '| API URL:', API_BASE_URL);
 
 class ApiService {
   constructor(baseURL = API_BASE_URL) {
