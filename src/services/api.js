@@ -68,6 +68,7 @@ class ApiService {
     const token = localStorage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -78,14 +79,18 @@ class ApiService {
         method: 'POST',
         headers,
         body: JSON.stringify(data),
+        credentials: 'include',
       });
 
       if (!response.ok) {
         let errorData = {};
         try {
-          errorData = await response.json();
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          }
         } catch (e) {
-          // Se não conseguir fazer parse do JSON, continua sem dados de erro
+          console.warn('Não foi possível fazer parse da resposta de erro');
         }
         
         let errorMessage = `HTTP error! status: ${response.status}`;
@@ -104,6 +109,7 @@ class ApiService {
       return response.json();
     } catch (error) {
       if (error instanceof TypeError) {
+        console.error('[API POST Error]', error, 'URL:', `${this.baseURL}${endpoint}`);
         throw new Error(`Erro de conexão com o servidor (${this.baseURL}). Verifique se o backend está disponível.`);
       }
       throw error;
@@ -117,6 +123,7 @@ class ApiService {
     const token = localStorage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -127,19 +134,23 @@ class ApiService {
         method: 'PUT',
         headers,
         body: JSON.stringify(data),
+        credentials: 'include',
       });
 
       if (!response.ok) {
         let errorData = {};
         try {
-          errorData = await response.json();
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          }
         } catch (e) {
-          // Se não conseguir fazer parse do JSON, continua sem dados de erro
+          console.warn('Não foi possível fazer parse da resposta de erro');
         }
         
         let errorMessage = `HTTP error! status: ${response.status}`;
         
-        // Handle Pydantic validation errors (array of objects)
+        // Handle Pydantic validation errors (array de objects)
         if (Array.isArray(errorData.detail)) {
           errorMessage = errorData.detail
             .map(err => `${err.loc?.[err.loc.length - 1] || 'campo'}: ${err.msg}`)
@@ -153,6 +164,7 @@ class ApiService {
       return response.json();
     } catch (error) {
       if (error instanceof TypeError) {
+        console.error('[API PUT Error]', error, 'URL:', `${this.baseURL}${endpoint}`);
         throw new Error(`Erro de conexão com o servidor (${this.baseURL}). Verifique se o backend está disponível.`);
       }
       throw error;
@@ -166,6 +178,7 @@ class ApiService {
     const token = localStorage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -175,19 +188,22 @@ class ApiService {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         method: 'DELETE',
         headers,
+        credentials: 'include',
       });
 
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         
         try {
-          const errorData = await response.json();
-          if (errorData.detail) {
-            errorMessage = errorData.detail;
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            if (errorData.detail) {
+              errorMessage = errorData.detail;
+            }
           }
         } catch (e) {
-          // Se não conseguir fazer parse do JSON, usa apenas o status
-          console.error('Erro ao fazer parse da resposta de erro:', e);
+          console.warn('Não foi possível fazer parse da resposta de erro');
         }
         
         throw new Error(errorMessage);
@@ -206,7 +222,7 @@ class ApiService {
       return null;
     } catch (error) {
       if (error instanceof TypeError) {
-        // Erro de conexão/rede
+        console.error('[API DELETE Error]', error, 'URL:', `${this.baseURL}${endpoint}`);
         throw new Error('Erro de conexão com o servidor. Verifique se o backend está disponível.');
       }
       throw error;
